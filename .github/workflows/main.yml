@@ -1,4 +1,4 @@
-name: Cl
+name: Remote Desktop Setup
 
 on: [push, workflow_dispatch]
 
@@ -7,6 +7,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    - name: Set up environment variables
+      run: echo "NGROK_PATH=${{ github.workspace }}\\ngrok" >> $Env:GITHUB_ENV
+
     - name: Download Ngrok
       run: |
         Invoke-WebRequest https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-windows-amd64.zip -OutFile ngrok.zip
@@ -23,8 +26,10 @@ jobs:
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
-        $password = ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force
+        $password = ConvertTo-SecureString -AsPlainText $Env:RDP_PASSWORD -Force
         Set-LocalUser -Name "runneradmin" -Password $password
+      env:
+        RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
 
     - name: Create Ngrok Tunnel
       run: .\ngrok\ngrok.exe tcp 3389
