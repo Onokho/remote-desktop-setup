@@ -27,7 +27,7 @@ jobs:
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
         $password = ConvertTo-SecureString -AsPlainText $Env:RDP_PASSWORD -Force
-        Set-LocalUser -Name "runneradmin" -Password $password
+        Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "123456789Med" -Force)
       env:
         RDP_PASSWORD: ${{ secrets.RDP_PASSWORD }}
 
